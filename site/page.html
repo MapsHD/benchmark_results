@@ -1,0 +1,575 @@
+<title>MapsHD Odometry Benchmark</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,400..800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one working column — dataset + run header, metric tabs, ranking chart beside the run summary, full table, then run-to-run history. */
+:root {
+  --bg: #f3f5f4;
+  --surface: #ffffff;
+  --ink: #16201e;
+  --muted: #5b6965;
+  --line: #d9e0dd;
+  --accent: #0a6c74;
+  --accent-soft: #dcefee;
+  --ok: #2f8a4e;
+  --drift: #b97a0a;
+  --bad: #c2412d;
+  --none: #98a39f;
+  --stale: #6d55b8;
+  --display: "Archivo", "Arial Narrow", system-ui, sans-serif;
+  --body: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1514; --surface: #161e1d; --ink: #e3ebe8; --muted: #93a39e; --line: #2a3533;
+    --accent: #4fc2c6; --accent-soft: #163435; --ok: #5cc27e; --drift: #e2a83a; --bad: #ef6f5a; --none: #66726e; --stale: #a993f0;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1514; --surface: #161e1d; --ink: #e3ebe8; --muted: #93a39e; --line: #2a3533;
+  --accent: #4fc2c6; --accent-soft: #163435; --ok: #5cc27e; --drift: #e2a83a; --bad: #ef6f5a; --none: #66726e; --stale: #a993f0;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-block: 28px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 28px; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(1.7rem, 3.4vw, 2.4rem); font-weight: 800; font-stretch: 80%; letter-spacing: -0.01em; line-height: 1.1; }
+h2 { font-size: 1.25rem; font-weight: 700; font-stretch: 85%; }
+h3 { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+p { margin: 0; max-width: 68ch; }
+a { color: var(--accent); }
+.mono, td.num, .num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.eyebrow { font-family: var(--mono); font-size: 0.75rem; color: var(--accent); letter-spacing: 0.06em; text-transform: uppercase; }
+
+header.top { display: grid; gap: 10px; }
+header.top p { color: var(--muted); }
+
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.tab { font: inherit; font-weight: 600; font-size: 0.92rem; border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 8px 14px; border-radius: 6px; cursor: pointer; }
+.tab:hover { border-color: var(--accent); }
+.tab[aria-selected="true"], .tab[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.tab:focus-visible, select:focus-visible, input:focus-visible, th button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.tab small { font-weight: 400; opacity: 0.8; margin-left: 6px; }
+
+.dataset { display: grid; gap: 14px; }
+.ds-head { display: flex; flex-wrap: wrap; gap: 16px 32px; align-items: end; justify-content: space-between; }
+.ds-head > div { min-width: 0; display: grid; gap: 6px; }
+.links { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 0.88rem; }
+.run-pick { display: grid; gap: 4px; }
+.run-pick label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 600; }
+select, input[type="search"] { font: inherit; font-size: 0.92rem; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 7px 10px; max-width: 100%; }
+
+.runmeta { display: grid; gap: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; font-size: 0.9rem; }
+.runmeta dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; margin: 0; }
+.runmeta dt { color: var(--muted); }
+.runmeta dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.notice { border-left: 3px solid var(--stale); padding: 6px 0 6px 12px; color: var(--ink); }
+.notice b { color: var(--stale); }
+
+.counts { display: flex; flex-wrap: wrap; gap: 8px; }
+.count { display: inline-flex; align-items: baseline; gap: 6px; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 4px 12px; font-size: 0.85rem; }
+.count b { font-family: var(--mono); font-size: 1rem; }
+
+.chip { display: inline-block; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; border-radius: 4px; padding: 1px 7px; white-space: nowrap; border: 1px solid currentColor; }
+.s-ok { color: var(--ok); } .s-drift { color: var(--drift); } .s-bad { color: var(--bad); } .s-none { color: var(--none); } .s-stale { color: var(--stale); }
+.dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; background: currentColor; }
+
+.metric-bar { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); padding-bottom: 10px; }
+.metric-bar .tab { border-radius: 6px 6px 0 0; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 0.82rem; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+
+.panel { display: grid; gap: 12px; min-width: 0; }
+.chart { width: 100%; min-height: 360px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+.split { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+
+.tbl-tools { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between; }
+.tbl-tools p { color: var(--muted); font-size: 0.85rem; }
+.scroll { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+table { border-collapse: collapse; width: 100%; font-size: 0.86rem; }
+th, td { padding: 7px 12px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--line); }
+th:first-child, td:first-child, th.l, td.l { text-align: left; }
+thead th { position: sticky; top: 0; background: var(--surface); z-index: 1; }
+th button { all: unset; cursor: pointer; font-weight: 700; font-size: 0.78rem; color: var(--muted); display: inline-flex; gap: 4px; align-items: center; }
+th button[data-dir] { color: var(--ink); }
+th button[data-dir="asc"]::after { content: "▲"; font-size: 0.65rem; }
+th button[data-dir="desc"]::after { content: "▼"; font-size: 0.65rem; }
+th.key button { color: var(--accent); }
+td.key { font-weight: 600; }
+tbody tr:hover td { background: var(--accent-soft); }
+tr.is-stale td:first-child { box-shadow: inset 3px 0 0 var(--stale); }
+td.algo { font-weight: 600; }
+td .chip { margin-left: 6px; }
+td.na { color: var(--none); }
+.delta-up { color: var(--bad); } .delta-down { color: var(--ok); }
+
+.history { display: grid; gap: 12px; border-top: 1px solid var(--line); padding-top: 24px; }
+.history .controls { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: end; }
+.history .controls > div { display: grid; gap: 4px; }
+.history .controls > .tabs { display: flex; }
+.history .controls label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 600; }
+.check { display: inline-flex; gap: 8px; align-items: center; font-size: 0.9rem; }
+
+footer { color: var(--muted); font-size: 0.82rem; border-top: 1px solid var(--line); padding-top: 16px; display: grid; gap: 4px; }
+
+@media (min-width: 980px) {
+  .split { grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); align-items: start; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <span class="eyebrow">MapsHD · LiDAR &amp; LiDAR-inertial odometry</span>
+    <h1>MapsHD Odometry Benchmark</h1>
+    <p>Dockerized LO/LIO algorithms run on the same recordings and scored against ground truth. Every run committed to the results repository appears here, so you can rank algorithms per dataset and see how each one changed from run to run.</p>
+  </header>
+
+  <nav class="tabs" id="ds-tabs" role="tablist" aria-label="Datasets"></nav>
+
+  <section class="dataset" id="dataset">
+    <div class="ds-head">
+      <div>
+        <h2 id="ds-title"></h2>
+        <p id="ds-desc"></p>
+        <div class="links" id="ds-links"></div>
+      </div>
+      <div class="run-pick">
+        <label for="run-select">Run</label>
+        <select id="run-select"></select>
+      </div>
+    </div>
+
+    <div class="metric-bar">
+      <div class="tabs" id="metric-tabs" role="tablist" aria-label="Metric"></div>
+      <div class="legend" id="legend"></div>
+    </div>
+
+    <div class="split">
+      <div class="panel">
+        <div class="chart" id="rank-chart" role="img" aria-label="Ranking chart"></div>
+      </div>
+      <aside class="panel">
+        <h3>Run</h3>
+        <div class="runmeta" id="run-meta"></div>
+        <h3>Status in this metric</h3>
+        <div class="counts" id="counts"></div>
+      </aside>
+    </div>
+
+    <div class="panel">
+      <div class="tbl-tools">
+        <input type="search" id="filter" placeholder="Filter algorithms…" aria-label="Filter algorithms">
+        <p id="tbl-note"></p>
+      </div>
+      <div class="scroll"><table id="table"></table></div>
+    </div>
+  </section>
+
+  <section class="history" id="traj">
+    <h2>Trajectories</h2>
+    <p id="traj-desc">Each trajectory is aligned to ground truth with a rigid SE(3) fit, like <span class="mono">evo_traj -a</span>, and shown in the XY plane. The view opens on ground truth; click legend entries to add or remove algorithms, and drag to zoom.</p>
+    <div class="controls">
+      <div class="tabs" id="traj-show" role="group" aria-label="Show trajectories">
+        <button type="button" class="tab" data-show="ok">Good APE only</button>
+        <button type="button" class="tab" data-show="all">All</button>
+        <button type="button" class="tab" data-show="none">Ground truth only</button>
+      </div>
+    </div>
+    <div class="chart" id="traj-chart" role="img" aria-label="XY trajectory plot"></div>
+    <p id="traj-note" class="mono" style="font-size:0.8rem;color:var(--muted)"></p>
+  </section>
+
+  <section class="history" id="history">
+    <h2>Run-to-run history</h2>
+    <p>The headline value of the selected metric for every run of this dataset. Click legend entries to hide or isolate algorithms; double-click one to show only it.</p>
+    <div class="controls">
+      <div>
+        <label for="cmp-a">Compare</label>
+        <select id="cmp-a"></select>
+      </div>
+      <div>
+        <label for="cmp-b">with</label>
+        <select id="cmp-b"></select>
+      </div>
+      <label class="check"><input type="checkbox" id="only-changed"> Only changes above 10%</label>
+    </div>
+    <div class="chart" id="hist-chart" role="img" aria-label="History chart"></div>
+    <div class="scroll"><table id="cmp-table"></table></div>
+  </section>
+
+  <footer>
+    <span>Source tables come from <span class="mono">evo</span> (APE/RPE), the overlap step and the point-cloud step of <a href="https://github.com/MapsHD/benchmark-HDMapping-Orchestration">benchmark-HDMapping-Orchestration</a>.</span>
+    <span>Cite: Będkowski et al., “MapsHD: A benchmark suite for LiDAR odometry frameworks”, SoftwareX 35 (2026) 102822.</span>
+    <span id="built"></span>
+  </footer>
+</div>
+
+<script id="bench-data" type="application/json">__DATA__</script>
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-basic-dist-min@2.35.2/plotly-basic.min.js"></script>
+<script>
+(() => {
+  const DATA = JSON.parse(document.getElementById("bench-data").textContent);
+  const M = DATA.metrics;
+  const $ = (id) => document.getElementById(id);
+  const state = { ds: 0, run: null, metric: "ape", sort: null, filter: "", cmpA: null, cmpB: null, onlyChanged: false, trajShow: "ok" };
+  const STATUS = {
+    ok: { label: "good", cls: "s-ok", tok: "--ok" },
+    drift: { label: "drift", cls: "s-drift", tok: "--drift" },
+    bad: { label: "failed", cls: "s-bad", tok: "--bad" },
+    none: { label: "no result", cls: "s-none", tok: "--none" },
+  };
+
+  const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  const ds = () => DATA.datasets[state.ds];
+  const run = () => ds().runs.find((r) => r.id === state.run) || ds().runs[ds().runs.length - 1];
+  const metricsOf = (r) => Object.keys(M).filter((k) => r.tables[k]);
+
+  function fmt(v) {
+    if (v === null || v === undefined) return "–";
+    if (typeof v !== "number") return String(v);
+    const a = Math.abs(v);
+    if (a !== 0 && (a >= 1e6 || a < 1e-3)) return v.toExponential(2);
+    if (a >= 1000) return v.toLocaleString("en-US", { maximumFractionDigits: 0 });
+    if (Number.isInteger(v)) return v.toLocaleString("en-US");
+    return v.toPrecision(a >= 1 ? 4 : 3);
+  }
+
+  function statusOf(metric, v) {
+    if (typeof v !== "number") return "none";
+    const m = M[metric];
+    if (m.lower) return v < m.good ? "ok" : v < m.bad ? "drift" : "bad";
+    return v >= m.good ? "ok" : v >= m.bad ? "drift" : "bad";
+  }
+
+  function thresholdText(metric) {
+    const m = M[metric];
+    const u = m.unit;
+    return m.lower
+      ? [`< ${m.good} ${u}`, `${m.good}–${m.bad} ${u}`, `≥ ${m.bad} ${u}`]
+      : [`≥ ${m.good} ${u}`, `${m.bad}–${m.good} ${u}`, `< ${m.bad} ${u}`];
+  }
+
+  function plotLayout(extra) {
+    return Object.assign({
+      paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
+      font: { family: css("--body"), color: css("--ink"), size: 12 },
+      margin: { l: 10, r: 20, t: 16, b: 44 },
+      hoverlabel: { font: { family: css("--mono") } },
+    }, extra);
+  }
+
+  // ---------- dataset tabs ----------
+  function renderDatasetTabs() {
+    $("ds-tabs").innerHTML = "";
+    DATA.datasets.forEach((d, i) => {
+      const b = document.createElement("button");
+      b.className = "tab"; b.type = "button"; b.setAttribute("role", "tab");
+      b.setAttribute("aria-selected", String(i === state.ds));
+      b.innerHTML = `${d.title}<small>${d.runs.length} run${d.runs.length === 1 ? "" : "s"}</small>`;
+      b.addEventListener("click", () => selectDataset(i));
+      $("ds-tabs").appendChild(b);
+    });
+  }
+
+  function selectDataset(i) {
+    state.ds = i;
+    const d = ds();
+    state.run = d.runs[d.runs.length - 1].id;
+    state.cmpB = d.runs[d.runs.length - 1].id;
+    state.cmpA = d.runs[Math.max(0, d.runs.length - 2)].id;
+    if (!run().tables[state.metric]) state.metric = metricsOf(run())[0];
+    state.sort = null;
+    try { history.replaceState(null, "", "#" + d.id); } catch (e) { /* sandboxed */ }
+    renderAll();
+  }
+
+  // ---------- header ----------
+  function renderHeader() {
+    const d = ds();
+    $("ds-title").textContent = d.title;
+    $("ds-desc").textContent = d.description || "";
+    $("ds-links").innerHTML = Object.entries(d.links || {})
+      .map(([k, v]) => `<a href="${v}" target="_blank" rel="noopener">${k} ↗</a>`).join("");
+    const sel = $("run-select");
+    sel.innerHTML = d.runs.slice().reverse()
+      .map((r) => `<option value="${r.id}">${r.date} · ${r.label}</option>`).join("");
+    sel.value = run().id;
+  }
+
+  function renderRunMeta() {
+    const r = run();
+    const rows = [["Date", r.date], ["Source", r.source], ["Commit", r.commit ? `<span class="mono">${r.commit}</span>` : null], ["Tables", metricsOf(r).map((k) => M[k].title).join(", ")]]
+      .filter(([, v]) => v);
+    let html = `<dl>${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>`;
+    if (r.stale && r.stale.length) html += `<div class="notice"><b>Stale:</b> ${r.stale.join(", ")}. ${r.notes || ""}</div>`;
+    else if (r.notes) html += `<p>${r.notes}</p>`;
+    $("run-meta").innerHTML = html;
+  }
+
+  // ---------- metric tabs + legend ----------
+  function renderMetricTabs() {
+    const r = run();
+    $("metric-tabs").innerHTML = "";
+    metricsOf(r).forEach((k) => {
+      const b = document.createElement("button");
+      b.className = "tab"; b.type = "button"; b.setAttribute("role", "tab");
+      b.setAttribute("aria-selected", String(k === state.metric));
+      b.title = M[k].long;
+      b.textContent = M[k].title;
+      b.addEventListener("click", () => { state.metric = k; state.sort = null; renderAll(); });
+      $("metric-tabs").appendChild(b);
+    });
+    const t = thresholdText(state.metric);
+    $("legend").innerHTML =
+      `<span class="mono">${M[state.metric].key}</span>` +
+      ["ok", "drift", "bad"].map((s, i) => `<span class="${STATUS[s].cls}"><i class="dot"></i><span style="color:var(--muted)">${STATUS[s].label} ${t[i]}</span></span>`).join("") +
+      `<span class="s-stale"><i class="dot"></i><span style="color:var(--muted)">stale result</span></span>`;
+  }
+
+  // ---------- rows for current view ----------
+  function currentRows() {
+    const r = run();
+    const t = r.tables[state.metric];
+    const key = M[state.metric].key;
+    return t.rows.map((row) => ({
+      ...row,
+      v: typeof row.values[key] === "number" ? row.values[key] : null,
+      status: statusOf(state.metric, row.values[key]),
+      stale: (r.stale || []).includes(row.id),
+    }));
+  }
+
+  // ---------- ranking chart ----------
+  function renderRankChart() {
+    const m = M[state.metric];
+    const rows = currentRows().filter((x) => x.v !== null && (!state.filter || x.name.toLowerCase().includes(state.filter)));
+    rows.sort((a, b) => (m.lower ? b.v - a.v : a.v - b.v)); // best ends at the top of a horizontal bar chart
+    const useLog = m.unit === "m";
+    const colors = rows.map((x) => css(x.stale ? "--stale" : STATUS[x.status].tok));
+    const trace = {
+      type: "bar", orientation: "h",
+      x: rows.map((x) => x.v), y: rows.map((x) => x.name),
+      marker: { color: colors, opacity: rows.map((x) => (x.stale ? 0.55 : 1)) },
+      text: rows.map((x) => fmt(x.v)), textposition: "outside", cliponaxis: false,
+      textfont: { family: css("--mono"), size: 11, color: css("--muted") },
+      hovertemplate: `%{y}<br>${m.key}: %{x:.4g} ${m.unit}<extra></extra>`,
+    };
+    const h = Math.max(320, rows.length * 22 + 80);
+    $("rank-chart").style.height = h + "px";
+    Plotly.react("rank-chart", [trace], plotLayout({
+      height: h,
+      margin: { l: 10, r: 70, t: 16, b: 44 },
+      xaxis: { type: useLog ? "log" : "linear", title: { text: `${m.title} ${m.key} [${m.unit}]${useLog ? " — log scale" : ""}`, font: { size: 12, color: css("--muted") } }, gridcolor: css("--line"), zeroline: false, tickfont: { family: css("--mono"), color: css("--muted") } },
+      yaxis: { automargin: true, tickfont: { size: 12 } },
+      bargap: 0.25,
+    }), { displaylogo: false, responsive: true, modeBarButtonsToRemove: ["select2d", "lasso2d"] });
+  }
+
+  // ---------- counts ----------
+  function renderCounts() {
+    const rows = currentRows();
+    const c = { ok: 0, drift: 0, bad: 0, none: 0 };
+    rows.forEach((x) => c[x.status]++);
+    const stale = rows.filter((x) => x.stale).length;
+    $("counts").innerHTML = ["ok", "drift", "bad", "none"]
+      .map((s) => `<span class="count ${STATUS[s].cls}"><b>${c[s]}</b><span style="color:var(--ink)">${STATUS[s].label}</span></span>`).join("") +
+      (stale ? `<span class="count s-stale"><b>${stale}</b><span style="color:var(--ink)">stale</span></span>` : "");
+  }
+
+  // ---------- table ----------
+  function renderTable() {
+    const t = run().tables[state.metric];
+    const key = M[state.metric].key;
+    const cols = t.columns.filter((c) => !c.startsWith("_"));
+    let rows = currentRows().filter((x) => !state.filter || x.name.toLowerCase().includes(state.filter));
+    const sort = state.sort || { col: key, dir: M[state.metric].lower ? "asc" : "desc" };
+    rows.sort((a, b) => {
+      const va = sort.col === "__name" ? a.name.toLowerCase() : a.values[sort.col];
+      const vb = sort.col === "__name" ? b.name.toLowerCase() : b.values[sort.col];
+      const na = va === null || va === undefined, nb = vb === null || vb === undefined;
+      if (na || nb) return na - nb; // missing values always last
+      const r = va < vb ? -1 : va > vb ? 1 : 0;
+      return sort.dir === "asc" ? r : -r;
+    });
+    const th = (col, label, cls = "") =>
+      `<th class="${cls}"><button type="button" data-col="${col}" ${sort.col === col ? `data-dir="${sort.dir}"` : ""}>${label}</button></th>`;
+    let html = `<thead><tr>${th("__name", "algorithm", "l")}<th class="l">status</th>${cols.map((c) => th(c, c, c === key ? "key" : "")).join("")}</tr></thead><tbody>`;
+    html += rows.map((x) => {
+      const chip = x.stale ? `<span class="chip s-stale">stale</span>` : "";
+      const st = x.values._status ? `<span class="chip s-none">${x.values._status.replace("_", " ")}</span>` : `<span class="chip ${STATUS[x.status].cls}">${STATUS[x.status].label}</span>`;
+      const note = x.values._note ? ` title="${x.values._note}"` : "";
+      return `<tr class="${x.stale ? "is-stale" : ""}"${note}><td class="algo">${x.name}${x.values._note ? " *" : ""}${chip}</td><td class="l">${st}</td>` +
+        cols.map((c) => { const v = x.values[c]; return `<td class="num ${c === key ? "key" : ""} ${v === null ? "na" : ""}">${fmt(v)}</td>`; }).join("") + "</tr>";
+    }).join("");
+    $("table").innerHTML = html + "</tbody>";
+    $("table").querySelectorAll("th button").forEach((b) => b.addEventListener("click", () => {
+      const col = b.dataset.col;
+      const dir = sort.col === col && sort.dir === "asc" ? "desc" : "asc";
+      state.sort = { col, dir };
+      renderTable();
+    }));
+    const notes = rows.filter((x) => x.values._note);
+    $("tbl-note").textContent = `${rows.length} algorithms · source file ${t.file}` + (notes.length ? ` · * ${notes[0].values._note}` : "") + " · click a column to sort";
+  }
+
+  // ---------- history ----------
+  function valueIn(r, metric, id) {
+    const t = r.tables[metric];
+    if (!t) return undefined; // metric not published in that run
+    const row = t.rows.find((x) => x.id === id);
+    if (!row) return undefined;
+    const v = row.values[M[metric].key];
+    return typeof v === "number" ? v : null;
+  }
+
+  function renderHistory() {
+    const d = ds();
+    const m = M[state.metric];
+    const runs = d.runs.filter((r) => r.tables[state.metric]);
+    const names = new Map();
+    runs.forEach((r) => r.tables[state.metric].rows.forEach((x) => names.set(x.id, x.name)));
+    const ids = [...names.keys()].sort();
+    const x = runs.map((r) => `${r.date}<br>${r.label.length > 28 ? r.label.slice(0, 26) + "…" : r.label}`);
+    const traces = ids.map((id) => ({
+      type: "scatter", mode: "lines+markers", name: names.get(id),
+      x, y: runs.map((r) => valueIn(r, state.metric, id) ?? null),
+      connectgaps: false,
+      marker: { size: 7, symbol: runs.map((r) => ((r.stale || []).includes(id) ? "circle-open" : "circle")) },
+      hovertemplate: `${names.get(id)}<br>%{y:.4g} ${m.unit}<extra></extra>`,
+    }));
+    Plotly.react("hist-chart", traces, plotLayout({
+      height: 440,
+      margin: { l: 60, r: 20, t: 16, b: 70 },
+      yaxis: { type: m.unit === "m" ? "log" : "linear", title: { text: `${m.key} [${m.unit}]`, font: { size: 12, color: css("--muted") } }, gridcolor: css("--line"), tickfont: { family: css("--mono"), color: css("--muted") } },
+      xaxis: { gridcolor: css("--line"), tickfont: { size: 11 } },
+      legend: { font: { size: 11 }, itemclick: "toggle", itemdoubleclick: "toggleothers" },
+      showlegend: true,
+    }), { displaylogo: false, responsive: true });
+
+    // compare selects
+    const opts = d.runs.map((r) => `<option value="${r.id}">${r.date} · ${r.label}</option>`).join("");
+    $("cmp-a").innerHTML = opts; $("cmp-b").innerHTML = opts;
+    $("cmp-a").value = state.cmpA; $("cmp-b").value = state.cmpB;
+    renderCompare();
+  }
+
+  function renderCompare() {
+    const d = ds();
+    const m = M[state.metric];
+    const A = d.runs.find((r) => r.id === state.cmpA), B = d.runs.find((r) => r.id === state.cmpB);
+    const head = `<thead><tr><th class="l">algorithm</th><th>${A.date}</th><th>${B.date}</th><th>change</th><th class="l">note</th></tr></thead>`;
+    if (!A.tables[state.metric] || !B.tables[state.metric]) {
+      $("cmp-table").innerHTML = head + `<tbody><tr><td class="l" colspan="5">${M[state.metric].title} was not published for ${!A.tables[state.metric] ? A.date : B.date}. Pick another run or metric.</td></tr></tbody>`;
+      return;
+    }
+    const ids = new Set([...A.tables[state.metric].rows, ...B.tables[state.metric].rows].map((x) => x.id));
+    const nameOf = (id) => (B.tables[state.metric].rows.find((x) => x.id === id) || A.tables[state.metric].rows.find((x) => x.id === id)).name;
+    let rows = [...ids].map((id) => {
+      const a = valueIn(A, state.metric, id), b = valueIn(B, state.metric, id);
+      const rel = typeof a === "number" && typeof b === "number" && a !== 0 ? (b - a) / Math.abs(a) * 100 : null;
+      return { id, name: nameOf(id), a, b, rel, stale: (B.stale || []).includes(id) || (A.stale || []).includes(id) };
+    });
+    if (state.onlyChanged) rows = rows.filter((x) => x.rel === null ? (x.a ?? null) !== (x.b ?? null) : Math.abs(x.rel) > 10);
+    rows.sort((x, y) => Math.abs(y.rel ?? 1e12) - Math.abs(x.rel ?? 1e12));
+    const body = rows.map((x) => {
+      let cls = "", txt = "–";
+      if (x.rel !== null) {
+        txt = (x.rel > 0 ? "+" : "") + x.rel.toFixed(1) + "%";
+        const worse = m.lower ? x.rel > 10 : x.rel < -10, better = m.lower ? x.rel < -10 : x.rel > 10;
+        cls = worse ? "delta-up" : better ? "delta-down" : "";
+      } else if ((x.a ?? null) === null && typeof x.b === "number") txt = "new result";
+      else if (typeof x.a === "number" && (x.b ?? null) === null) txt = "lost result";
+      return `<tr><td class="algo">${x.name}</td><td class="num">${fmt(x.a)}</td><td class="num">${fmt(x.b)}</td><td class="num ${cls}">${txt}</td><td class="l">${x.stale ? '<span class="chip s-stale">stale</span>' : ""}</td></tr>`;
+    }).join("");
+    $("cmp-table").innerHTML = head + `<tbody>${body || '<tr><td class="l" colspan="5">No changes above 10%.</td></tr>'}</tbody>`;
+  }
+
+  // ---------- trajectories ----------
+  const TRAJ_COLORS = ["#1f77b4", "#d62728", "#2ca02c", "#9467bd", "#ff7f0e", "#17becf", "#8c564b", "#e377c2", "#bcbd22", "#7f7f7f",
+    "#3b5bdb", "#c2255c", "#2b8a3e", "#e8590c", "#0b7285", "#862e9c", "#5c940d", "#a61e4d", "#1864ab", "#d9480f"];
+
+  function renderTrajectories() {
+    const r = run();
+    const tj = r.trajectories;
+    const section = $("traj");
+    if (!tj) {
+      Plotly.purge("traj-chart");
+      $("traj-chart").hidden = true; $("traj-show").hidden = true;
+      $("traj-note").textContent = `No trajectory files were published for the ${r.date} run. Pick a run that has them in the run selector above.`;
+      return;
+    }
+    $("traj-chart").hidden = false; $("traj-show").hidden = false;
+    const ape = r.tables.ape;
+    const apeOf = (id) => { const row = ape && ape.rows.find((x) => x.id === id); return row ? row.values.rmse : null; };
+    const gt = tj.ground_truth;
+    const pad = (lo, hi) => { const m = (hi - lo) * 0.15 + 1; return [lo - m, hi + m]; };
+    const xr = pad(Math.min(...gt.x), Math.max(...gt.x)), yr = pad(Math.min(...gt.y), Math.max(...gt.y));
+    const algos = tj.algorithms.filter((a) => !a.skipped);
+    const visible = (a) => {
+      if (state.trajShow === "all") return true;
+      if (state.trajShow === "none") return "legendonly";
+      return statusOf("ape", apeOf(a.id)) === "ok" && !(r.stale || []).includes(a.id) ? true : "legendonly";
+    };
+    const traces = [{
+      type: "scatter",
+      mode: "lines", name: "ground truth", x: gt.x, y: gt.y,
+      line: { color: css("--ink"), width: 2.5, dash: "dash" }, hoverinfo: "skip",
+    }].concat(algos.map((a, i) => {
+      const v = apeOf(a.id);
+      const stale = (r.stale || []).includes(a.id);
+      return {
+        type: "scatter", mode: "lines", name: a.name + (stale ? " (stale)" : ""), x: a.x, y: a.y,
+        visible: visible(a),
+        line: { width: 1.4, color: TRAJ_COLORS[i % TRAJ_COLORS.length], dash: stale ? "dot" : "solid" },
+        hovertemplate: `${a.name}<br>x %{x:.2f} m, y %{y:.2f} m<br>APE rmse ${fmt(v)} m<extra></extra>`,
+      };
+    }));
+    Plotly.react("traj-chart", traces, plotLayout({
+      height: 640,
+      margin: { l: 56, r: 16, t: 16, b: 48 },
+      xaxis: { range: xr, title: { text: "x [m]", font: { size: 12, color: css("--muted") } }, gridcolor: css("--line"), zeroline: false, tickfont: { family: css("--mono"), color: css("--muted") } },
+      yaxis: { range: yr, scaleanchor: "x", scaleratio: 1, title: { text: "y [m]", font: { size: 12, color: css("--muted") } }, gridcolor: css("--line"), zeroline: false, tickfont: { family: css("--mono"), color: css("--muted") } },
+      legend: { font: { size: 11 }, itemclick: "toggle", itemdoubleclick: "toggleothers" },
+      showlegend: true,
+    }), { displaylogo: false, responsive: true, scrollZoom: true });
+    $("traj-show").querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.show === state.trajShow)));
+    const skipped = tj.algorithms.filter((a) => a.skipped).map((a) => `${a.name} (${a.skipped})`);
+    $("traj-note").textContent = `Downsampled to ${tj.hz} Hz. The view is framed on ground truth; diverged trajectories leave the frame, so zoom out or double-click the plot to see them.` +
+      (skipped.length ? ` Not plotted: ${skipped.join(", ")}.` : "");
+  }
+
+  function renderAll() {
+    renderDatasetTabs(); renderHeader(); renderMetricTabs(); renderRunMeta();
+    renderCounts(); renderRankChart(); renderTable(); renderTrajectories(); renderHistory();
+  }
+
+  // ---------- events ----------
+  $("run-select").addEventListener("change", (e) => {
+    state.run = e.target.value;
+    if (!run().tables[state.metric]) state.metric = metricsOf(run())[0];
+    state.sort = null; renderAll();
+  });
+  $("filter").addEventListener("input", (e) => { state.filter = e.target.value.trim().toLowerCase(); renderRankChart(); renderTable(); });
+  $("cmp-a").addEventListener("change", (e) => { state.cmpA = e.target.value; renderCompare(); });
+  $("cmp-b").addEventListener("change", (e) => { state.cmpB = e.target.value; renderCompare(); });
+  $("only-changed").addEventListener("change", (e) => { state.onlyChanged = e.target.checked; renderCompare(); });
+  $("traj-show").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-show]");
+    if (b) { state.trajShow = b.dataset.show; renderTrajectories(); }
+  });
+  // Re-colour charts when the theme changes.
+  const rerender = () => { renderRankChart(); renderTrajectories(); renderHistory(); };
+  try { matchMedia("(prefers-color-scheme: dark)").addEventListener("change", rerender); } catch (e) { /* old browsers */ }
+  new MutationObserver(rerender).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
+  $("built").textContent = `Built ${DATA.built} from ${DATA.datasets.reduce((n, d) => n + d.runs.length, 0)} runs.`;
+  const fromHash = DATA.datasets.findIndex((d) => "#" + d.id === location.hash);
+  selectDataset(fromHash >= 0 ? fromHash : 0);
+})();
+</script>

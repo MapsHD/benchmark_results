@@ -1,0 +1,10 @@
+{
+  "title": "Bunker DVI — reg-1",
+  "description": "Sequence reg-1 of the Bunker DVI Dataset. Trajectories are evaluated against the HDMapping ground-truth session; registered point clouds are evaluated against a FARO Focus TLS scan.",
+  "order": 1,
+  "links": {
+    "Orchestration branch": "https://github.com/MapsHD/benchmark-HDMapping-Orchestration/tree/Bunker-DVI-Dataset-reg-1",
+    "Dataset (Zenodo)": "https://zenodo.org/records/23069933",
+    "Bunker DVI Dataset": "https://charleshamesse.github.io/bunker-dvi-dataset"
+  }
+}

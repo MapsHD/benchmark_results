@@ -1,0 +1,10 @@
+{
+  "title": "HUMANOID-LIO — calibration-room, trial 1",
+  "description": "Trial 1 of the calibration-room scenario of the HUMANOID-LIO dataset (Livox lidar + IMU on a humanoid robot). Trajectories are evaluated against the provided ground-truth trajectory.",
+  "order": 2,
+  "links": {
+    "Orchestration branch": "https://github.com/MapsHD/benchmark-HDMapping-Orchestration/tree/HUMANOID-LIO-DATASET",
+    "Dataset (Zenodo)": "https://zenodo.org/records/21318128",
+    "Video of runs": "https://youtu.be/Xe0pvC-ml9A"
+  }
+}

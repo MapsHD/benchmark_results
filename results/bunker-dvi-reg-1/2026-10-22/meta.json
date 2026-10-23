@@ -1,0 +1,7 @@
+{
+  "date": "2026-10-22",
+  "label": "Full pipeline run (steps 1–8)",
+  "source": "start_benchmark.sh, orchestration commit 2a12097",
+  "orchestration_commit": "2a12097",
+  "notes": "map-lio produced no step 7 registration. mola trajectory truncated (120 overlap nodes)."
+}

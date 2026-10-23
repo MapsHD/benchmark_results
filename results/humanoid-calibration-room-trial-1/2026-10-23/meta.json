@@ -1,0 +1,8 @@
+{
+  "date": "2026-10-23",
+  "label": "Full pipeline run (steps 1–6)",
+  "source": "start_benchmark.sh, orchestration commit 582fc0f; input bag converted with mandeye_to_bag 34dbd19",
+  "orchestration_commit": "582fc0f",
+  "stale": ["kiss-icp", "genz-icp", "lidar_odometry_ros_wrapper", "glim"],
+  "notes": "Stale algorithms were not re-recorded on the fixed bag (their ros2 bag output folder already existed) and still show results from an earlier run on a bag with 4.3 s lidar gaps. glim is additionally limited by a hard-coded 2-minute timeout (~29% of the trajectory)."
+}

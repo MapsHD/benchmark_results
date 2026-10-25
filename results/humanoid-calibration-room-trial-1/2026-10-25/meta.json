@@ -1,0 +1,7 @@
+{
+  "date": "2026-10-25",
+  "label": "Full pipeline run (steps 1–8), bag from Mandeye raw",
+  "source": "start_benchmark.sh run from the Bunker-DVI-Dataset-reg-1 orchestration branch (commit 6731599) on HUMANOID-LIO calibration-room trial 1 data; bag converted from Mandeye raw data with mandeye_to_rosbag (mandeye-ws_noetic) and named reg-1.bag to fit that branch; conversion_tum_step4/ground_truth.tum replaced with the HUMANOID-LIO ground-truth trajectory",
+  "orchestration_commit": "6731599",
+  "notes": "Run with the Bunker-DVI branch configuration, not the HUMANOID-LIO-DATASET branch, so per-algorithm configs may differ from the 2026-10-23 run. No output: loam-livox (all poses zero), map-lio and d-lio (recorded bags empty). Truncated: ct-icp (268 of 390 s, 40% overlap), sr-lio (diverges after ~133 s, 151 s trajectory)."
+}

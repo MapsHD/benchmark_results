@@ -1,0 +1,8 @@
+{
+  "title": "Oxford Spires — Keble College, sequence 02",
+  "description": "Sequence 2024-03-12-keble-college-02 of the Oxford Spires dataset (Hesai QT64 lidar at 10 Hz and Alphasense IMU on a handheld rig, 300 s, 294 m outdoors). Trajectories are evaluated against the official ground truth (gt-tum.txt, ICP-registered to a Leica TLS map, in the lidar frame); maps against that TLS map.",
+  "order": 3,
+  "links": {
+    "Dataset (Hugging Face)": "https://huggingface.co/datasets/ori-drs/oxford_spires_dataset"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "date": "2026-10-29",
+  "label": "Canonical bag (Hesai PointCloud2 with ring/time), steps 1–8",
+  "source": "start_benchmark.sh on the local Oxford-Spires orchestration branch (commit ab904b6), steps 1-3 end to end on the canonical bags (ROS1 keble-college-02.bag, ROS2 keble-college-02-ros2: Hesai QT64 PointCloud2 with x y z intensity ring time, IMU 400 Hz in the lidar frame, m/s²). Each algorithm runs from its own spinning-lidar config with only the sensor description changed (topics, 64 rings, time unit, 0.5–60 m range, identity lidar-IMU extrinsic); algorithm branches hdmapping-benchmark-canonical. Steps 4-8 resumed by hand after an out-of-memory kill in step 4.",
+  "orchestration_commit": "ab904b6",
+  "notes": "Step 4 ran one algorithm session at a time (all 41 sessions in one process were OOM-killed at 58 GB); APE uses Umeyama alignment so this does not change the values. Step 8 ran with 5 jobs; 5 diverged maps (d-lio, floam, genz-icp, resple, voxel-map) hit the 900 s evaluation limit and have no map metrics. rko-lio covered the whole walk in this run, but in a single run it once stopped after 125 s (it rejects scans more than 1 s after the last accepted one). loam-livox was dropped (no canonical config). sr-lio and se3-lio have good trajectories but low map F-scores (0.076, 0.226), probably a map export problem."
+}

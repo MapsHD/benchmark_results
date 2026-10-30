@@ -1,0 +1,7 @@
+{
+  "date": "2026-10-26",
+  "label": "Full pipeline run (steps 1–8), Hesai converted with mcap_to_laz",
+  "source": "Steps 1-3 with run_benchmark_step3.sh from the Bunker-DVI-Dataset-reg-1 orchestration branch (commit 6731599; Mid-360 algorithm configs unchanged) on a Livox bag converted from the Oxford Spires ROS1 bag: rosbags-convert to MCAP, mcap_to_laz --lidar-type hesai (HDMapping 654d8d9), IMU rotated into the lidar frame and converted to g, mandeye_to_rosbag with --msg_hz 10 (local patch, one message per 0.1 s sweep). Steps 4-8 from a local Oxford-Spires-keble-college-02 orchestration branch (data dir parameter, Oxford ground truth, step 8 --timeout); HDMapping ground-truth session built from gt-tum.txt poses and the raw scans (median 1.9 cm from TLS); TLS reference: merged-cloud-1cm.pcd cropped to the walk + 20 m (56.5 M points).",
+  "orchestration_commit": "6731599",
+  "notes": "No trajectory (9): bievr-lio, d-lio, lio-ekf, loam-livox, map-lio (no output), dalislam, dlio, glim, rko-lio (empty session). Step 4 was run in 4 batches (out of memory with all sessions at once); dlo, which starts last, is in every batch so all trajectories are aligned at the same instant. Step 8: 8 diverged maps (form, floam, genz-icp, voxel-map, resple, kiss-icp, lio-sam, slict) hit the 15 min evaluation limit and have no map metrics. Map recall is at most ~0.55 because the TLS crop covers areas the lidar never saw. sr-lio has a good trajectory (APE 0.040 m) but low map recall (0.08): its saved session has a single chunk, probably a map export problem."
+}

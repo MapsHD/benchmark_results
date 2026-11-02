@@ -185,11 +185,15 @@ def build():
             continue
         runs.sort(key=lambda r: (r["date"], r["id"]))
         datasets.append({"id": ds_dir.name, **info, "runs": runs})
+    citations = json.loads((SITE / "citations.json").read_text())
+    algorithms = {r["id"] for d in datasets for run in d["runs"] for t in run["tables"].values() for r in t["rows"]}
+    for algo in sorted(algorithms - citations.keys()):
+        errors.append(f"site/citations.json: no citation for algorithm \"{algo}\"")
     if errors:
         raise ResultsError("\n".join(f"  - {e}" for e in errors))
     datasets.sort(key=lambda d: (d.get("order", 99), d["id"]))
     built = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-    return {"metrics": METRICS, "datasets": datasets, "built": built}
+    return {"metrics": METRICS, "datasets": datasets, "citations": citations, "built": built}
 
 
 def main():

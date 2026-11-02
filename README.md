@@ -1,6 +1,7 @@
 # benchmark_results
 
 Results of the [MapsHD](https://github.com/MapsHD) LiDAR / LiDAR-inertial odometry benchmark, published as an interactive website.
+See also the [Benchmarks-LIO wiki page](https://github.com/MapsHD/HDMapping/wiki/Benchmarks-LIO).
 
 - **`main`** holds the result tables produced by
   [benchmark-HDMapping-Orchestration](https://github.com/MapsHD/benchmark-HDMapping-Orchestration),
@@ -29,6 +30,7 @@ scripts/
   extract_trajectories.py     align TUM trajectories to ground truth -> trajectories.json
   build.py                    validate results/ and build _site/index.html
 site/page.html                page template (data is inlined at build time)
+site/citations.json           citation for every algorithm, shown in the page footer
 .github/workflows/pages.yml   CI: validate on PRs, build and deploy main to gh-pages
 ```
 
@@ -124,6 +126,13 @@ The pipeline uses different spellings for the same algorithm (`genz` in the evo 
 step 8, `HDMapping_LIO` and `hdmapping-lio`). `build.py` lowercases names, turns `_` into `-`, and applies
 the `ALIASES` table in `scripts/build.py`. If a new spelling shows up as a separate algorithm on the
 site, or the build reports duplicate algorithms, add it to `ALIASES`.
+
+## Algorithm citations
+
+The site footer lists a citation for every algorithm, from `site/citations.json`. Entries are keyed by
+the normalised algorithm id, and the citations mostly come from the
+[HDMapping `bib/` folder](https://github.com/MapsHD/HDMapping/tree/main/bib). The build fails if an
+algorithm in `results/` has no entry, so add one when a run introduces a new algorithm.
 
 ## Status colours
 

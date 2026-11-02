@@ -116,6 +116,12 @@ td.na { color: var(--none); }
 .check { display: inline-flex; gap: 8px; align-items: center; font-size: 0.9rem; }
 
 footer { color: var(--muted); font-size: 0.82rem; border-top: 1px solid var(--line); padding-top: 16px; display: grid; gap: 4px; }
+.citations { margin-top: 16px; display: grid; gap: 10px; }
+.citations h2 { font-size: 1rem; color: var(--ink); }
+.citations ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px 32px; }
+.citations li { overflow-wrap: anywhere; }
+.citations li > b { color: var(--ink); }
+@media (min-width: 980px) { .citations ol { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
 @media (min-width: 980px) {
   .split { grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); align-items: start; }
@@ -127,7 +133,7 @@ footer { color: var(--muted); font-size: 0.82rem; border-top: 1px solid var(--li
   <header class="top">
     <span class="eyebrow">MapsHD · LiDAR &amp; LiDAR-inertial odometry</span>
     <h1>MapsHD Odometry Benchmark</h1>
-    <p>Dockerized LO/LIO algorithms run on the same recordings and scored against ground truth. Every run committed to the results repository appears here, so you can rank algorithms per dataset and see how each one changed from run to run.</p>
+    <p>Dockerized LO/LIO algorithms run on the same recordings and scored against ground truth. Every run committed to the results repository appears here, so you can rank algorithms per dataset and see how each one changed from run to run. Read more on the <a href="https://github.com/MapsHD/HDMapping/wiki/Benchmarks-LIO" target="_blank" rel="noopener">Benchmarks-LIO wiki page ↗</a>.</p>
   </header>
 
   <nav class="tabs" id="ds-tabs" role="tablist" aria-label="Datasets"></nav>
@@ -207,6 +213,10 @@ footer { color: var(--muted); font-size: 0.82rem; border-top: 1px solid var(--li
     <span>Source tables come from <span class="mono">evo</span> (APE/RPE), the overlap step and the point-cloud step of <a href="https://github.com/MapsHD/benchmark-HDMapping-Orchestration">benchmark-HDMapping-Orchestration</a>.</span>
     <span>Cite: Będkowski et al., “MapsHD: A benchmark suite for LiDAR odometry frameworks”, SoftwareX 35 (2026) 102822.</span>
     <span id="built"></span>
+    <section class="citations" aria-labelledby="citations-title">
+      <h2 id="citations-title">Algorithm citations</h2>
+      <ol id="citations"></ol>
+    </section>
   </footer>
 </div>
 
@@ -568,6 +578,20 @@ footer { color: var(--muted); font-size: 0.82rem; border-top: 1px solid var(--li
   try { matchMedia("(prefers-color-scheme: dark)").addEventListener("change", rerender); } catch (e) { /* old browsers */ }
   new MutationObserver(rerender).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 
+  Object.values(DATA.citations)
+    .sort((a, b) => a.name.localeCompare(b.name, "en", { sensitivity: "base" }))
+    .forEach((c) => {
+      const li = document.createElement("li");
+      li.append(Object.assign(document.createElement("b"), { textContent: c.name }), " — ");
+      c.refs.forEach((r, i) => {
+        if (i) li.append(" ");
+        li.append(`${r.authors}, `);
+        const title = `“${r.title}”`;
+        li.append(r.url ? Object.assign(document.createElement("a"), { href: r.url, target: "_blank", rel: "noopener", textContent: title }) : title);
+        li.append(`, ${r.venue}.`);
+      });
+      $("citations").append(li);
+    });
   $("built").textContent = `Built ${DATA.built} from ${DATA.datasets.reduce((n, d) => n + d.runs.length, 0)} runs.`;
   const fromHash = DATA.datasets.findIndex((d) => "#" + d.id === location.hash);
   selectDataset(fromHash >= 0 ? fromHash : 0);

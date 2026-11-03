@@ -1,0 +1,80 @@
+% BEGIN DOCUMENT PREAMBLE (standalone only)
+\documentclass{article}
+\usepackage[a4paper,landscape,margin=15mm]{geometry}
+\usepackage{adjustbox,caption,environ}
+\RenewEnviron{table}[1][]{%
+  \noindent\begin{adjustbox}{%
+    max totalsize={\textwidth}{\dimexpr\textheight-2\baselineskip\relax},center}%
+    \begin{minipage}{\textwidth}
+      \captionsetup{type=table}
+      \centering\BODY
+    \end{minipage}%
+  \end{adjustbox}\par
+}
+\pagestyle{empty}
+\begin{document}
+\vspace*{\fill}
+% END DOCUMENT PREAMBLE
+
+% BEGIN COPY-PASTE TABLE
+\begin{table}[htbp]
+\centering
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{llrrrrrrrr}
+\hline
+Algorithm & Status & \shortstack{Chamfer\\(m)} & \shortstack{CD $A \to F$\\(m)} & \shortstack{CD $F \to A$\\(m)} & \shortstack{Hausdorff\\(m)} & Precision & Recall & F-score & \shortstack{RMSE\\(m)} \\
+\hline
+fast-lio & evaluated & 0.622353 & 0.436407 & 0.808298 & 45.679818 & 0.206156 & 0.157670 & 0.178682 & 2.402453 \\
+dlo & evaluated & 0.757867 & 0.516768 & 0.998966 & 38.688395 & 0.105560 & 0.016764 & 0.028933 & 2.454524 \\
+super-lio & evaluated & 0.730766 & 0.478586 & 0.982945 & 47.120779 & 0.168666 & 0.072723 & 0.101628 & 2.560098 \\
+dlio & evaluated & 0.669491 & 0.575388 & 0.763593 & 39.027357 & 0.157035 & 0.175098 & 0.165575 & 2.119534 \\
+faster-lio & evaluated & 0.753684 & 0.699694 & 0.807674 & 38.484780 & 0.055123 & 0.046923 & 0.050694 & 2.135021 \\
+ig-lio & evaluated & 0.631111 & 0.448074 & 0.814149 & 38.902588 & 0.171749 & 0.115870 & 0.138381 & 2.223455 \\
+i2ekf-lo & failed & - & - & - & - & - & - & - & - \\
+ct-icp & evaluated & 0.706618 & 0.631587 & 0.781649 & 39.139582 & 0.193711 & 0.226261 & 0.208724 & 2.192729 \\
+loam-livox & not\_registered & - & - & - & - & - & - & - & - \\
+lio-ekf & not\_registered & - & - & - & - & - & - & - & - \\
+lego-loam & evaluated & 0.730730 & 0.547548 & 0.913912 & 36.654574 & 0.083787 & 0.053037 & 0.064956 & 2.416752 \\
+point-lio & evaluated & 0.896487 & 0.781353 & 1.011622 & 39.523518 & 0.061234 & 0.041480 & 0.049458 & 2.322677 \\
+voxel-map & failed & - & - & - & - & - & - & - & - \\
+slict & evaluated & 0.717274 & 0.487835 & 0.946713 & 47.838111 & 0.180246 & 0.077638 & 0.108529 & 2.495971 \\
+form & evaluated & 1.006289 & 1.100437 & 0.912142 & 41.513246 & 0.030293 & 0.066949 & 0.041712 & 2.089094 \\
+c3p-voxelmap & evaluated & 0.708080 & 0.565583 & 0.850577 & 38.534021 & 0.168173 & 0.077633 & 0.106229 & 2.274155 \\
+nv-liom & evaluated & 0.664773 & 0.543606 & 0.785940 & 39.983244 & 0.167667 & 0.214534 & 0.188227 & 2.276196 \\
+se3-lio & evaluated & 0.694354 & 0.793687 & 0.595022 & 39.017422 & 0.092428 & 0.116309 & 0.103003 & 1.976556 \\
+dalislam & evaluated & 0.668963 & 0.547158 & 0.790767 & 38.900656 & 0.177314 & 0.166356 & 0.171660 & 2.198159 \\
+voxelslam & evaluated & 0.629496 & 0.475106 & 0.783885 & 39.132445 & 0.205826 & 0.159092 & 0.179467 & 2.209212 \\
+mm-lins & evaluated & 0.607997 & 0.419413 & 0.796582 & 38.546919 & 0.202841 & 0.160512 & 0.179211 & 2.288159 \\
+log-lio2 & evaluated & 0.677416 & 0.528862 & 0.825970 & 38.162337 & 0.136592 & 0.097474 & 0.113764 & 2.216554 \\
+sr-lio & evaluated & 0.876381 & 0.868098 & 0.884663 & 46.689126 & 0.215372 & 0.022876 & 0.041359 & 2.521070 \\
+r-voxelmap & evaluated & 0.728458 & 0.595655 & 0.861261 & 38.210887 & 0.116989 & 0.081171 & 0.095843 & 2.248124 \\
+pv-lio & evaluated & 0.665912 & 0.577925 & 0.753899 & 39.092672 & 0.174713 & 0.195580 & 0.184559 & 2.163930 \\
+floam & failed & - & - & - & - & - & - & - & - \\
+lio-sam & evaluated & 0.654144 & 0.520471 & 0.787817 & 38.922415 & 0.161628 & 0.160039 & 0.160830 & 2.216692 \\
+map-lio & evaluated & 0.634836 & 0.530678 & 0.738994 & 39.067911 & 0.203351 & 0.218545 & 0.210675 & 2.188802 \\
+superOdom & evaluated & 0.758929 & 0.690766 & 0.827091 & 39.204273 & 0.093002 & 0.139698 & 0.111665 & 2.189567 \\
+kiss-icp & failed & - & - & - & - & - & - & - & - \\
+genz-icp & failed & - & - & - & - & - & - & - & - \\
+lidar\_odometry\_ros\_wrapper & evaluated & 1.195363 & 0.859511 & 1.531215 & 48.001017 & 0.040961 & 0.018899 & 0.025864 & 3.256919 \\
+ellipselio & evaluated & 0.616134 & 0.479197 & 0.753071 & 39.103031 & 0.275167 & 0.179736 & 0.217442 & 2.231724 \\
+d-lio & failed & - & - & - & - & - & - & - & - \\
+glim & evaluated & 8.346293 & 0.331790 & 16.360795 & 120.262948 & 0.326866 & 0.164411 & 0.218779 & 32.608200 \\
+bievr-lio & evaluated & 0.705236 & 0.627161 & 0.783312 & 39.109402 & 0.165036 & 0.178797 & 0.171641 & 2.178051 \\
+rko-lio & evaluated & 1.490049 & 0.357692 & 2.622405 & 45.438036 & 0.138813 & 0.320479 & 0.193719 & 7.340008 \\
+mola & evaluated & 1.035153 & 1.080515 & 0.989792 & 41.419806 & 0.038291 & 0.068827 & 0.049207 & 2.129746 \\
+resple & evaluated & 0.690490 & 0.546346 & 0.834633 & 39.061030 & 0.132572 & 0.109963 & 0.120214 & 2.270984 \\
+pin-slam & evaluated & 0.773281 & 0.759526 & 0.787037 & 38.586162 & 0.045040 & 0.118496 & 0.065271 & 2.088082 \\
+hdmapping-lio & evaluated & 0.794247 & 0.702019 & 0.886476 & 39.385541 & 0.102313 & 0.115385 & 0.108456 & 2.304338 \\
+hdmapping-lio-opt-params & evaluated & 0.711815 & 0.637151 & 0.786480 & 39.008930 & 0.181337 & 0.196628 & 0.188673 & 2.155341 \\
+\hline
+\end{tabular}
+\caption{Step 8 point-cloud evaluation against FARO. Distances are in meters; precision, recall and F-score are in $[0,1]$. $A$ denotes the algorithm cloud and $F$ the FARO reference; CD denotes Chamfer distance. Settings (voxel size / threshold, m): 0.050000 / 0.050000. A zero voxel size disables downsampling. Precision/recall uses a strict less-than threshold. RMSE uses reference-to-algorithm nearest neighbors for unequal point counts, or row correspondence for equal counts. Unavailable metrics are shown as \texttt{-}.}
+\label{tab:step8-point-cloud-evaluation}
+\end{table}
+% END COPY-PASTE TABLE
+
+% BEGIN DOCUMENT FOOTER (standalone only)
+\vspace*{\fill}
+\end{document}
+% END DOCUMENT FOOTER

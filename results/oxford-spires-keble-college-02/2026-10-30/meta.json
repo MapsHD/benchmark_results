@@ -1,0 +1,7 @@
+{
+  "date": "2026-10-30",
+  "label": "Canonical bag, clean full run (steps 1–8)",
+  "source": "start_benchmark.sh on branch Oxford-Spires (commit dc5c913), plus hdmapping-lio from commit 9877367 (steps 3, 7, 8 for it alone, then steps 4–6 for all)",
+  "orchestration_commit": "9877367",
+  "notes": "Full start_benchmark.sh run from an empty ~/hdmapping-benchmark/data. 40 of 41 algorithms produced a session; loam-livox has no canonical config. steps 4–6 were then rerun for all algorithms and the step 7/8 summaries were merged. Step 8 ran with 1 job and a 900 s limit per map: 7 maps hit it and have no map metrics (i2ekf-lo, voxel-map, floam, kiss-icp, genz-icp, d-lio, resple). rko-lio stopped after 7 s of the 301 s walk (67 poses), so its APE covers only that start and its map is incomplete (Chamfer 10.5 m); resple covered the whole walk but drifted (APE RMSE 1.9 m). dlo, sr-lio and lio-ekf have very sparse maps (recall < 0.05). hdmapping-lio-opt-params is hdmapping-lio rerun on 2026-11-03 on this sequence with the tuned parameter file params/hdmapping-lio-opt-params/HDMapping_params_0.106.0_2026-11-01_15-35.toml (hdmapping-lio itself used default parameters). It ran on the same hdmapping-lio_standalone image (HDMapping 0.105.0, commit f721635), not on 0.106.0; output file names say 0.106.0 only because they take the version from the parameter file. Step 4-8 ran for it alone in a separate workspace with the same settings as this run (bucket 0.05 m, voxel 0.05 m, threshold 0.05 m, 900 s limit, 1 job)."
+}

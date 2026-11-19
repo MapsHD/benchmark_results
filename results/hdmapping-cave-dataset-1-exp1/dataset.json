@@ -1,0 +1,9 @@
+{
+  "title": "HDMAPPING-CAVE-DATASET-1 — exp1",
+  "description": "Experiment 1 of HDMAPPING-CAVE-DATASET-1 (Meziad cave, Livox MID360 + IMU, about 55 minutes). Trajectories are evaluated against the HDMapping ground-truth session; registered point clouds are evaluated against a FARO Focus TLS scan.",
+  "order": 5,
+  "links": {
+    "Orchestration branch": "https://github.com/MapsHD/benchmark-HDMapping-Orchestration/tree/HDMAPPING-CAVE-DATASET-1",
+    "Dataset (Zenodo)": "https://zenodo.org/records/24254676"
+  }
+}

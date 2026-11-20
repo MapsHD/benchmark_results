@@ -1,0 +1,10 @@
+{
+  "title": "KITTI odometry — sequence 07",
+  "description": "KITTI odometry sequence 07 (raw drive 2011_09_30_drive_0027: Velodyne HDL-64E + OXTS RT3003 IMU at 100 Hz, about 694 m), from the kitti_to_ros ROS 1 bag, converted to the canonical bag. Trajectories are evaluated against the KITTI odometry ground-truth poses (Velodyne frame). No TLS map, so there are no point-cloud metrics.",
+  "order": 6,
+  "links": {
+    "Orchestration branch": "https://github.com/MapsHD/benchmark-HDMapping-Orchestration/tree/KITTI-canonical",
+    "Input bag (kitti_to_ros)": "https://huggingface.co/datasets/kubchud/kitti_to_ros",
+    "KITTI odometry": "https://www.cvlibs.net/datasets/kitti/eval_odometry.php"
+  }
+}

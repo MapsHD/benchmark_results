@@ -1,7 +1,7 @@
 {
   "date": "2026-11-20",
   "label": "Canonical bag, full pipeline (steps 1-6), qt64 default configs",
-  "source": "start_benchmark.sh on branch KITTI-canonical, commit edaa374",
-  "orchestration_commit": "edaa374",
-  "notes": "First KITTI run on the canonical pipeline. All algorithms run with their QT64 (Oxford Spires) canonical defaults; sensor_overrides.conf has no hdl64 rows yet (60 m max range, wide vertical FOV assumed). Rings are estimated from elevation bins; point times assume the scan starts at the header stamp (KITTI stamps the forward-facing moment, so they are likely ~50 ms late); KITTI scans may already be deskewed; the canonical bag is re-sliced to 100 ms (1156 clouds vs 1111 scans). APE is aligned at the first pose (evo --align_origin). pv-lio crashed at playback start (no result). lego-loam recorded only 287 poses. voxel-map trajectory did not move (fallback alignment). LOAM-Livox skipped (needs Livox input)."
+  "source": "start_benchmark.sh on branch KITTI-canonical, commit b2fc93d",
+  "orchestration_commit": "b2fc93d",
+  "notes": "First KITTI run on the canonical pipeline. All algorithms run with their QT64 (Oxford Spires) canonical defaults; sensor_overrides.conf has no hdl64 rows yet (60 m max range, wide vertical FOV assumed). Rings are estimated from elevation bins; point times assume the scan starts at the header stamp (KITTI stamps the forward-facing moment, so they are likely ~50 ms late); KITTI scans may already be deskewed; the canonical bag is re-sliced to 100 ms (1156 clouds vs 1111 scans). APE is aligned at the first pose (evo --align_origin). hdmapping-lio was rerun with the HDMapping session's first 0.5 s split into its own chunk (orchestration b2fc93d): HDMapping never uses a session's first chunk, and without the split it lost the first 15 s of driving and diverged (APE 49 m). pv-lio crashed at playback start (no result). lego-loam recorded only 287 poses. voxel-map trajectory did not move (fallback alignment). LOAM-Livox skipped (needs Livox input)."
 }
